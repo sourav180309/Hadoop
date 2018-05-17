@@ -1,0 +1,107 @@
+order=sc.textFile("/users/cloudera/sqoop_import/all_tables/orders/")
+orderRDD=order.map(lambda x: (x.split(",")[3], 1))
+from operator import add
+orderCount=orderRDD.reduceByKey(add)
+orderCount=orderRDD.reduceByKey(x,y: x+y)
+orderCount.saveAsTextFile("path")
+
+order=sc.textFile("/users/cloudera/sqoop_import/all_tables/orders/")
+orderRDD=order.map(lambda x: x.split(","))
+orderMap=orderRDD.map(lambda x: x[0] + "|" + x[1] + "|" + x[2]+ "|" + x[3]+ "|" + x[4]+ "|" + x[5]+ "|" + x[6])
+orderMap.saveAsTextFile("path", "org.apache.hadoop.io.compress.SnappyCodec" ) --GzipCodec see help(orderMap)
+
+sqlContext.sql("show databases").show()
+sqlContext.sql("use database_name").show()
+sqlContext.sql("show tables").show()
+orderDF=sqlContext.sql(" select col1, col2, col3 from orders where condition ")
+sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed" ) 
+orderDF.write.save("path", "parquet")
+
+orderDF = sqlContext.read.load("/user/cloudera/sqoop_imp/all_tables/orderParquet", "parquet")
+orderMap = orderDF.map(lambda x: (x.order_status, x))
+orderSort = orderMap.sortByKey()
+orderFinal = orderSort.map(x: x[1])
+
+-- 2 options to convert the RDD into DataFarme
+--Option 1
+orderSave = orderFinal.toDF(["order_id", "order_date", "order_customer_id", "order_status"])
+
+--Option 2
+from pyspark.sql.types import *
+fields=[StructField("a", IntegerType(), True), StructField("b", StringType(), True), StructField("c", IntegerType(), True), StructField("b", StringType(), True)]
+schema=StructType(fields)
+df_new=sqlContext.createDataFrame(orderSave, schema)
+
+IntegerType
+LongType
+DateType
+StringType
+
+sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed" ) -- snappy and gzip also avilable and for Uncompressed file parquet or without this step by default parquet file will be saved as zip
+df_new.write.save("/user/cloudera/sqoop_imp/all_tables/orderParquet_new", "parquet")
+
+orderDF=sqlContext.sql("/user/cloudera/sqoop_imp/all_tables/orderJson","json")
+sqlContext.setConf("spark.sql.avro.compression.codec", "snappy" ) 
+orderDF.write.save("/user/cloudera/sqoop_imp/all_tables/orderJson_new", "com.data.bricks.spark.avro")
+
+orderDF=sqlContext.read.load("/user/cloudera/sqoop_imp/all_tables/orderAvro","com.data.bricks.spark.avro")
+orderFilter=orderDF.filter(lambda x: x.order_status in ["CLOSED"])
+orderMap=orderFilter.map(lambda x: x.fname + " " + x.lname)
+orderMap.saveAsTextFile("path", "org.apache.hadoop.io.compress.GzipCodec" ) --SnappyCodec see help(orderMap)
+
+mysql -u reatil_dba -p
+
+org.apache.hadoop.io.compress.SnappyCodec
+	com.databricks.spark.avro
+	from pyspark.sql.types import *
+	from operator import add
+sqlContext.setConf("spark.sql.parquet.compression.codec", "snappy" ) "gzip", "uncompressed"
+
+sqoop import \
+  --connect jdbc:mysql://quickstart.cloudera:3306/retail_db \
+  --connect jdbc:mysql://gateway/problem1
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --as-avrodatafile \
+  --target-dir /user/cloudera/departments
+  --export-dir /user/cloudera/departments
+
+	--columns "name,employee_id,jobtitle"
+	--where "id > 400" or --where "start_date > '2010-01-01'"
+	--compress \
+	--compression-codec org.apache.hadoop.io.compress.SnappyCodec ( GzipCodec) \
+	--fields-terminated-by '\t' 
+	--lines-terminated-by '\n'
+	
+>>> fields=[StructField("a", IntegerType(), True), StructField("b", StringType(), True), StructField("c", IntegerType(), True), StructField("b", StringType(), True)]
+>>> schema=StructType(fields)
+>>> df_new=sqlContext.createDataFrame(orderMap/OrderRDD, schema)	
+
+***AVRO Read****:
+>>> df = sqlContext.read.format("com.databricks.spark.avro").load("/user/cloudera/sqoop_imp/all_tables/orderAvro")
+>>> df = sqlContext.read.load("/user/cloudera/sqoop_imp/all_tables/orderAvro","com.databricks.spark.avro")
+
+***AVRO Write/Save***
+>>>df.write.save("path","com.databricks.spark.avro")
+>>>df.write.format("com.databricks.spark.csv").save("HDFS Path") 
+
+#Get revenue and count of items for each order id - aggregateByKey
+orderItems = sc.textFile("/public/retail_db/order_items")
+orderItemsMap = orderItems. \
+map(lambda oi: (int(oi.split(",")[1]), float(oi.split(",")[4])))
+for i in orderItemsMap.take(10): print(i)
+revenuePerOrder = orderItemsMap. \
+aggregateByKey((0.0, 0), 
+	lambda x, y: (x[0] + y, x[1] + 1), 
+	lambda x, y: (x[0] + y[0], x[1] + y[1]))
+  
+  ordersAgg = ordersMap.aggregateByKey((0.0,0),
+	lambda x,y : (x[0]+y, x[1]+1),
+	lambda x,y : (x[0]+y[0], x[1]+y[1]))
+	
+	ordersAgg=ordersMap.aggregateByKey((0.0,0),
+lambda x,y: (x[0]+y,x[1]+1),
+lambda x,y: (x[0]+y[0],x[1]+y[1]))
+  
+**saveAsTextFile(compressionCodecClass) - Snappy has error only Gzip is working
