@@ -1,0 +1,20 @@
+
+>>> orderRDD=sc.textFile("/users/cloudera/sqoop_import/all_tables/orders/")
+
+****************Function def
+def iscomplete (p1,p2=0): 
+  iscompleted = p1.split(",")[3] in ["CLOSED","COMPLETE"]
+  if(iscompleted): p2 = p2 + 1
+  return iscompleted
+
+
+****************Function call
+>>> orderFilter = orderRDD.filter(lambda x: iscomplete(x,0))
+>>> orderFilter.count()
+30455                                                                           
+>>> orderFilter = orderRDD.filter(lambda x: iscomplete(x,1))
+>>> orderFilter.count()
+30455                                                                           
+>>> orderFilter = orderRDD.filter(lambda x: iscomplete(x))
+>>> orderFilter.count()
+30455
