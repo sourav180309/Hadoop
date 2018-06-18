@@ -7,7 +7,6 @@ def iscomplete (p1,p2=0):
   if(iscompleted): p2 = p2 + 1
   return iscompleted
 
-
 ****************Function call
 >>> orderFilter = orderRDD.filter(lambda x: iscomplete(x,0))
 >>> orderFilter.count()
@@ -16,5 +15,17 @@ def iscomplete (p1,p2=0):
 >>> orderFilter.count()
 30455                                                                           
 >>> orderFilter = orderRDD.filter(lambda x: iscomplete(x))
+>>> orderFilter.count()
+30455
+
+***********************with Accumulator
+p2=sc.accumulator(0)
+
+def iscomplete (p1,p2): 
+  iscompleted = p1.split(",")[3] in ["CLOSED","COMPLETE"]
+  if(iscompleted):  p2 = p2.add(1)
+  return iscompleted
+
+>>> orderFilter = orderRDD.filter(lambda x: iscomplete(x,p2))
 >>> orderFilter.count()
 30455
