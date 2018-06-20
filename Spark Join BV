@@ -31,6 +31,17 @@ u'2014-02-12 00:00:00.0'
 >>> rev=ordersMapJoin.reduceByKey(lambda x, y: x+y)
 >>> rev.take(2)
 [((u'2014-07-14 00:00:00.0', 1014), 5897.6400000000003), ((u'2014-03-29 00:00:00.0', 926), 63.960000000000001)]
+-------end of Join and reduce by key
+
+*******************BV
+>>> products=open("/home/cloudera/part-m-00003").read().splitlines()
+>>> productsMap=dict(map(lambda x: (int(x.split(",")[0]), x.split(",")[2]), products))
+>>> productsBV=sc.broadcast(productsMap)
+>>> productsBV.value[1018]
+'Coleman Scanoe Canoe'
+>>> productsBV.value[1019]
+"O'Brien Youth Neoprene Life Vest"
+
 
 
 
