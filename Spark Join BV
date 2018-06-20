@@ -29,8 +29,8 @@ u'2014-02-12 00:00:00.0'
 *************Key value Pair before the reduceByKey to get the daily revenue per product
 >>> ordersMapJoin=ordersJoin.map(lambda x: ((x[1][0], x[1][1][0]), x[1][1][1]))
 >>> rev=ordersMapJoin.reduceByKey(lambda x, y: x+y)
->>> rev.take(2)
-[((u'2014-07-14 00:00:00.0', 1014), 5897.6400000000003), ((u'2014-03-29 00:00:00.0', 926), 63.960000000000001)]
+>>> rev.take(1)
+[((u'2014-07-14 00:00:00.0', 1014), 5897.6400000000003)]
 -------end of Join and reduce by key
 
 *******************BV
@@ -41,6 +41,12 @@ u'2014-02-12 00:00:00.0'
 'Coleman Scanoe Canoe'
 >>> productsBV.value[1019]
 "O'Brien Youth Neoprene Life Vest"
+
+***********************Using BV
+>>> ordersMapJoin=ordersJoin.map(lambda x: ((x[1][0], productsBV.value[x[1][1][0]]), x[1][1][1]))
+>>> ordersMapJoin.first()
+((u'2014-02-12 00:00:00.0', 'Pelican Sunstream 100 Kayak'), 199.99000000000001)
+
 
 
 
