@@ -1,0 +1,34 @@
+>>> orders=sc.textFile("/users/cloudera/sqoop_import/all_tables/orders")
+>>> ordersMap=orders.map(lambda x: (int(x.split(",")[0]), x.split(",")[1]))
+
+>>> orderItems=sc.textFile("/users/cloudera/sqoop_import/all_tables/order_items")
+>>> orderItemsMap=orderItems.map(lambda x: (int(x.split(",")[1]), (int(x.split(",")[2]),float(x.split(",")[4]))))
+>>> orderItemsMap.first()
+(1, (957, 299.98000000000002))
+
+>>> ordersJoin=ordersMap.join(orderItemsMap)
+>>> ordersJoin.first()
+(32768, (u'2014-02-12 00:00:00.0', (1073, 199.99000000000001)))
+
+>>> ordersMapJoin=ordersJoin.map(lambda x: x[0])
+>>> ordersMapJoin.first()
+32768
+
+>>> ordersMapJoin=ordersJoin.map(lambda x: x[1][0])
+>>> ordersMapJoin.first()
+u'2014-02-12 00:00:00.0'
+
+>>> ordersMapJoin=ordersJoin.map(lambda x: x[1][1][0])
+>>> ordersMapJoin.first()
+1073
+
+>>> ordersMapJoin=ordersJoin.map(lambda x: x[1][1][1])
+>>> ordersMapJoin.first()
+199.99000000000001
+
+
+
+
+
+
+
