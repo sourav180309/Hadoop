@@ -1,3 +1,4 @@
+**********************1st Example, joining orders and order_items
 >>> orders=sc.textFile("/users/cloudera/sqoop_import/all_tables/orders")
 >>> ordersMap=orders.map(lambda x: (int(x.split(",")[0]), x.split(",")[1]))
 
@@ -46,6 +47,28 @@ u'2014-02-12 00:00:00.0'
 >>> ordersMapJoin=ordersJoin.map(lambda x: ((x[1][0], productsBV.value[x[1][1][0]]), x[1][1][1]))
 >>> ordersMapJoin.first()
 ((u'2014-02-12 00:00:00.0', 'Pelican Sunstream 100 Kayak'), 199.99000000000001)
+
+**********************2nd Example, joining products and order_items
+**********************Using products file from local and join with OrderItems in Hadoop using BV
+
+>>> orders=sc.textFile("/users/cloudera/sqoop_import/all_tables/order_items")
+>>> ordersMap=orders.map(lambda x: ( int(x.split(",")[2]), float(x.split(",")[4])))
+
+>>> products=open("/home/cloudera/part-m-00003").read().splitlines()
+>>> productsRDD=sc.parallelize(products)
+>>> productsJoin=productsRDD.map(lambda x: (int(x.split(",")[0]), x.split(",")[2]))
+
+>>> ordersJoin=ordersMap.join(productsJoin)
+>>> ordersJoin.first()
+(1073, (199.99000000000001, 'Pelican Sunstream 100 Kayak')) 
+
+>>> ordersFinal=ordersJoin.map(lambda x: (x[0], x[1][0])) --without BV
+>>> ordersFinal=ordersJoin.map(lambda x: (productsBV.value[x[0]], x[1][0])) --with BV
+
+>>> orderRV=ordersFinal.reduceByKey(lambda x,y:x+y)
+>>> orderRV.first()
+('Pelican Maverick 100X Kayak', 13999.599999999993)
+
 
 
 
