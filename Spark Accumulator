@@ -28,3 +28,15 @@ Accumulator<id=0, value=5>
 >>> ac.value
 5
 >>> 
+>>> for i in sampleF.take(10): print(i)
+... 
+Spark
+Spark
+Spark
+Spark
+Spark
+>>> sampleC=sampleF.map(lambda x: (x,1))
+>>> sampleF=sampleC.reduceByKey(lambda x,y: x+y)
+>>> sampleF.first()
+('Spark', 5)
+>>> 
