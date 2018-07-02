@@ -1,0 +1,30 @@
+def fun1(x,ac): 
+   v1 = x in ["Spark"]
+   if(v1): ac=ac.add(1)
+   return v1
+
+>>> sample=open("/home/cloudera/sample.txt")
+>>> sample=open("/home/cloudera/sample.txt").read().splitlines()
+>>> sampleRDD=sc.parallelize(sample)
+>>> type(sampleRDD)
+<class 'pyspark.rdd.RDD'>
+>>> sampleMap=sampleRDD.flatMap(lambda x: x.split())
+>>> ac=sc.accumulator(0)
+>>> type(ac)
+<class 'pyspark.accumulators.Accumulator'>
+>>> def fun1(x,ac): 
+...    v1 = x in ["Spark"]
+...    if(v1): ac=ac.add(1)
+...    return v1
+... 
+>>> sampleF=sampleMap.filter(lambda x: fun1(x,ac)
+... )
+>>> ac.value
+0
+>>> sampleF.count()
+5
+>>> ac
+Accumulator<id=0, value=5>
+>>> ac.value
+5
+>>> 
