@@ -26,4 +26,19 @@ Sample code for Hive, spark and sqoop
   --input-fields-terminated-by '\t' 
   --input-lines-terminated-by '\n'
   
+  pyspark 
+--master yarn
+--num-executor 6 \
+--executor-cores 2 \ -- ( The num-executor * executor-memory (12) should not exceed the number of blocks )
+--executor-memory 2G \
+--conf spark.ui.port=12345
+
+spark-submit \
+--master yarn
+--num-executor 6 \
+--executor-cores 2 \ -- ( The num-executor * executor-memory (12) should not exceed the number of blocks )
+--executor-memory 2G \
+--conf spark.ui.port=1234
+/home/cloudera/sample.py --(this is the python script to be executed as spark application with fully qualified path)
+  
   
