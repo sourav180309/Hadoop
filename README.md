@@ -1,4 +1,13 @@
 # Hadoop
+
+************Open Browser --> quickstart.cloudera:8088 (hostname:8088) -->Application Master(Under Tracking UI) 
+pyspark 
+--master yarn
+--num-executor 2 \
+--executor-cores 2 \ -- ( The num-executor * executor-memory (12) should not exceed the number of blocks )
+--executor-memory 2G \
+--conf spark.ui.port=12345
+
 Sample code for Hive, spark and sqoop
 1. sqoop import \
   --connect jdbc:mysql://quickstart.cloudera:3306/retail_db \
