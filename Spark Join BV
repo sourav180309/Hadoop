@@ -90,6 +90,11 @@ u"Majestic Men's Replica Texas Rangers Russell "
 >>> o1=ordersJoin.map(lambda x: (productsBV.value[x[0]], x[1]))
 >>> o1.first()
 (u"Diamondback Women's Serene Classic Comfort Bi", u'299.98')
+>>> o1=ordersJoin.map(lambda x: (productsBV.value[x[0]], float(x[1])))
+>>> orderAgg=o1.reduceByKey(lambda x,y: x+y)
+>>> orderAgg.first()
+(u"Nike Men's Free TR 5.0 TB Training Shoe", 20597.939999999995)                
+>>> 
 
 
 
