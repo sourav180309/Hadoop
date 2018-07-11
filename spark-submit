@@ -1,0 +1,11 @@
+spark-submit --master yarn --num-executors 2 --executor-memory 2G --executor-cores 2  /home/cloudera/sparkjob.py
+
+import sys
+from pyspark import SparkContext, SparkConf
+conf=SparkConf().setAppName("Sample App")
+sc=SparkContext(conf=conf)
+
+orders = sc.textFile("/users/cloudera/sqoop_import/all_tables/orders")
+ordersFilter = orders.map(lambda x: x.split(","))
+ordersRDD=ordersFilter.filter(lambda x: x[3] in ["CLOSED"] )
+ordersRDD.saveAsTextFile("/users/cloudera/sqoop_import/all_tables/ordersTextPy")
