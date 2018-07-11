@@ -69,6 +69,28 @@ u'2014-02-12 00:00:00.0'
 >>> orderRV.first()
 ('Pelican Maverick 100X Kayak', 13999.599999999993)
 
+###############################Convert RDD into List then Dict and perform join using Broadcast variables 
+###############################(products as BV with ordertems)
+>>> products=sc.textFile("/users/cloudera/sqoop_import/all_tables/products")
+>>> p1=products.collect()
+>>> p2=dict(map(lambda x: (int(x.split(",")[0]), x.split(",")[2]),p1))
+>>> p2[1340]
+u"Majestic Men's Replica Texas Rangers Russell "
+
+>>> productsBV=sc.broadcast(p2)
+>>> productsBV.value[1340]
+u"Majestic Men's Replica Texas Rangers Russell "
+>>> 
+>>> orderitems=sc.textFile("/users/cloudera/sqoop_import/all_tables/order_items")
+>>> ordersJoin=orderitems.map(lambda x: (int(x.split(",")[2]), x.split(",")[4]))
+>>> o1=ordersJoin.map(lambda x: (productsBV.value[x[0]], x[1]))
+>>> o1.first()
+(u"Diamondback Women's Serene Classic Comfort Bi", u'299.98')
+>>> o1=ordersJoin.map(lambda x: (x[0], x[1]))
+>>> o1=ordersJoin.map(lambda x: (productsBV.value[x[0]], x[1]))
+>>> o1.first()
+(u"Diamondback Women's Serene Classic Comfort Bi", u'299.98')
+
 
 
 
