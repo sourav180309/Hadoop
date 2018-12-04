@@ -1,0 +1,35 @@
+## Sqoop Import and Export tables from Hive to Oracle Database
+Step 1: Sqoop import data from Oracle database to Hive table
+
+Our first task is to identify our source Oracle database table, and then use Sqoop to fetch the data from this table to HDFS using Sqoop.
+
+SQOOP IMPORT --connect "jdbc:oracle:thin:@<<database host>>:<<database port number>>:<<database service name>>" 
+--password "<<database password>>" --username "<<database username>>" 
+-table "<<source schema name>>.<<source database table>>" 
+--columns "<<column1>>,<<column2>>" -m 1 
+--target-dir "<<HDFS path>>" --verbose
+
+Step 2: Load the above Sqoop extracted data to a Hive table
+Assuming we already have a table created in Hive, we will load the file created in Step 1 into the Hive table using the below syntax.
+LOAD DATA INPATH '<<HDFS path>>' INTO TABLE <<hive table name>>;
+
+Step 3: Export a file using Hive query to be consumed by Sqoop
+
+INSERT OVERWRITE DIRECTORY '<<HDFS directory>>/<<file name>>'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+# STORED AS <file_format>
+select * from <<hive table name>> where <<condition>>;
+
+
+Step 4: Load data from Hive table exported file to Oracle database table
+
+SQOOP EXPORT --connect "jdbc:oracle:thin:@<<database host>>:<<database port number>>:<<database service name>>" 
+--password "<<database password>>" 
+--username "<<database username>>" 
+--table "<<target schema name>>.<<target database table>>" 
+--input-fields-terminated-by ',' --input-lines-terminated-by '\n' 
+--export-dir "<<HDFS directory>>/<<file name>>" 
+--input-null-string "\\\\N" 
+--input-null-non-string "\\\\N" 
+--verbose
